@@ -7,14 +7,14 @@ import java.util.Scanner;
 
 public class library
 {
-	Scanner sc = new Scanner(System.in);
 	public Connection con;
 	public Statement stmt;
 	public PreparedStatement psmt;
 	public ResultSet rs;
+	Scanner sc = new Scanner(System.in);
 	
 	public library() {
-		//sql 연결
+		// Oracle 연결
 		try {
 			Class.forName("oracle.jdbc.OracleDriver");
 			String url = "jdbc:oracle:thin:@localhost:1521:xe";
@@ -36,20 +36,20 @@ public class library
 		book.doRun();
 	}
 	
-
+	// 메뉴 선택
 	public void showMenu()
 	{
-		System.out.println("┌────[메뉴 선택]────┐");
+		System.out.println("┌────<메뉴 선택>────┐");
 		System.out.println("│1.    책 등록      │");
-		System.out.println("│2.    도서조회     │");
+		System.out.println("│2.   도서 조회     │");
 		System.out.println("│3.전체 리스트 조회 │");
 		System.out.println("│4. 낡은 책 버리기  │");
 		System.out.println("│5.      종료       │");
 		System.out.println("└───────────────────┘");
-		System.out.print(" 선택 : ");
+		System.out.print("메뉴를 선택해 주세요 : ");
 	}
 	
-	
+	// 프로그램 실행
 	public void doRun() {
 		while(true) {
 			showMenu();
@@ -69,8 +69,7 @@ public class library
 				delBook();
 				break;
 			case 5:
-				System.out.println("프로그램을 종료합니다.");
-				System.out.println("이용해주셔서 감사합니다.");
+				System.out.println("프로그램을 종료합니다. 감사합니다:) ");
 				return;
 			default:
 				System.out.println("잘못 입력하셨습니다.");
@@ -83,9 +82,9 @@ public class library
 	public void addBook() {
 		try
 		{
-			System.out.print("제목 : ");
+			System.out.print("등록할 책 제목을 입력해 주세요 : ");
 			String bookname = sc.nextLine();
-			System.out.print("권수 : ");
+			System.out.print("등록할 책의 권 수를 입력해 주세요 : ");
 			int howmany = sc.nextInt();
 			
 			String sql = "INSERT INTO BOOKDB VALUES(seq_book_num.nextval, ?, ?)";
@@ -94,8 +93,8 @@ public class library
 			psmt.setString(1, bookname);
 			psmt.setInt(2, howmany);
 			
-			int updateCount = psmt.executeUpdate();
-			System.out.println(updateCount + "행이 추가되었습니다.");
+			psmt.executeUpdate();
+			System.out.println(bookname + "(이)가 " + howmany +"권 추가되었습니다.");
 			
 		}
 		catch(Exception e) {
@@ -104,9 +103,9 @@ public class library
 		}
 	}
 	
-	//2. 책 조회
+	// 2. 책 조회
 	public void searchBook() {
-		System.out.print("조회할 책 제목 : ");
+		System.out.print("조회할 책 제목을 입력해 주세요 : ");
 		String bookname = sc.nextLine();
 		try{	
 			String sql = "select * from bookDB where bookname = ?";
@@ -116,10 +115,11 @@ public class library
 			rs = psmt.executeQuery();
 			
 			while(rs.next()) {
+				System.out.println("------------------------------");
 				System.out.println("책번호 : " + rs.getString("booknum"));
 				System.out.println("제  목 : " + rs.getString("bookname"));
 				System.out.println("수  량 : " + rs.getInt("howmany"));
-				System.out.println("----------------------------------------");
+				System.out.println("------------------------------");
 			}
 		}catch(Exception e) {
 			e.printStackTrace();
@@ -127,7 +127,7 @@ public class library
 		}
 	}
 	
-	//3. 전체 리스트 조회
+	// 3. 전체 리스트 조회
 	public void allBook() {
 		try{	
 			String sql = "select * from bookDB order by booknum";
@@ -135,10 +135,11 @@ public class library
 			rs = psmt.executeQuery(sql);
 		
 			while(rs.next()) {
+				System.out.println("------------------------------");
 				System.out.println("책번호 : "+rs.getString("booknum"));
 				System.out.println("제  목 : "+rs.getString("bookname"));
 				System.out.println("수  량 : " + rs.getInt("howmany"));
-				System.out.println("----------------------------------------");
+				System.out.println("------------------------------");
 			}
 		
 		}catch(Exception e) {
@@ -146,19 +147,21 @@ public class library
 		}
 	}
 	
-	//4. 낡은 책 버리기
+	// 4. 낡은 책 버리기
 	public void delBook() {
-		System.out.print("삭제할 책 제목 : ");
+		System.out.print("삭제할 책 제목을 입력해 주세요 : ");
 		String bookname = sc.nextLine();
 		try{	
 			String sql = "delete from bookDB where bookname = ?";
+			
 			psmt = con.prepareStatement(sql);
 			psmt.setString(1, bookname);
-			int updateCount = psmt.executeUpdate();
-			System.out.println(updateCount+"행이 삭제되었습니다.");
+			psmt.executeUpdate();
+			
+			System.out.println(bookname + "(이)가 삭제되었습니다.");
+			
 		}catch(Exception e) {
 			System.out.println("데이터베이스 삭제 에러입니다.");
 		}
 	}
-
 }
